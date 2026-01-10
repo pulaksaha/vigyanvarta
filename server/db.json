@@ -1,0 +1,93 @@
+{
+    "articles": [
+        {
+            "id": "1",
+            "title": "Breakthrough in Quantum Computing: Scientists Achieve 1000-Qubit Milestone",
+            "excerpt": "Researchers have developed a revolutionary quantum processor that could transform cryptography, drug discovery, and artificial intelligence.",
+            "content": "Full article content here...",
+            "category": "technology",
+            "author": "Dr. Sarah Chen",
+            "publishedAt": "2026-01-10",
+            "imageUrl": "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop",
+            "isFeatured": true,
+            "readTime": 8
+        },
+        {
+            "id": "2",
+            "title": "New Species of Deep-Sea Creatures Discovered in Mariana Trench",
+            "excerpt": "Marine biologists have identified over 30 previously unknown species living in the deepest parts of the ocean.",
+            "content": "Full article content here...",
+            "category": "science",
+            "author": "James Morrison",
+            "publishedAt": "2026-01-09",
+            "imageUrl": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&auto=format&fit=crop",
+            "readTime": 6
+        },
+        {
+            "id": "3",
+            "title": "SpaceX Announces Plans for First Civilian Mars Mission",
+            "excerpt": "The ambitious project aims to send the first non-astronaut crew to Mars by 2030.",
+            "content": "Full article content here...",
+            "category": "space",
+            "author": "Emily Rodriguez",
+            "publishedAt": "2026-01-09",
+            "imageUrl": "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&auto=format&fit=crop",
+            "readTime": 5
+        },
+        {
+            "id": "4",
+            "title": "Revolutionary AI Model Can Predict Earthquakes 48 Hours in Advance",
+            "excerpt": "Machine learning breakthrough could save countless lives by providing early warning systems for seismic events.",
+            "content": "Full article content here...",
+            "category": "innovation",
+            "author": "Dr. Michael Park",
+            "publishedAt": "2026-01-08",
+            "imageUrl": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&auto=format&fit=crop",
+            "readTime": 7
+        },
+        {
+            "id": "5",
+            "title": "Apple Unveils Neural Interface Headset for Hands-Free Computing",
+            "excerpt": "The next generation of wearable technology allows users to control devices using only their thoughts.",
+            "content": "Full article content here...",
+            "category": "gadgets",
+            "author": "Lisa Wang",
+            "publishedAt": "2026-01-08",
+            "imageUrl": "https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=800&auto=format&fit=crop",
+            "readTime": 4
+        },
+        {
+            "id": "6",
+            "title": "CERN Scientists Discover New Subatomic Particle",
+            "excerpt": "The finding could help explain dark matter and reshape our understanding of the universe.",
+            "content": "Full article content here...",
+            "category": "research",
+            "author": "Dr. Hans Mueller",
+            "publishedAt": "2026-01-07",
+            "imageUrl": "https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&auto=format&fit=crop",
+            "readTime": 9
+        },
+        {
+            "id": "7",
+            "title": "Gene Therapy Successfully Reverses Blindness in Clinical Trial",
+            "excerpt": "Patients with inherited retinal diseases regained significant vision after groundbreaking treatment.",
+            "content": "Full article content here...",
+            "category": "science",
+            "author": "Dr. Amanda Foster",
+            "publishedAt": "2026-01-07",
+            "imageUrl": "https://images.unsplash.com/photo-1576086213369-97a306d36557?w=800&auto=format&fit=crop",
+            "readTime": 6
+        },
+        {
+            "id": "8",
+            "title": "Tesla Reveals Solid-State Battery with 1000-Mile Range",
+            "excerpt": "The revolutionary battery technology charges in under 10 minutes and could make EVs more practical than ever.",
+            "content": "Full article content here...",
+            "category": "technology",
+            "author": "Robert Kim",
+            "publishedAt": "2026-01-06",
+            "imageUrl": "https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&auto=format&fit=crop",
+            "readTime": 5
+        }
+    ]
+}
