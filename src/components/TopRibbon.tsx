@@ -1,4 +1,4 @@
-import { Minus, Plus, Sun, Moon, User, Globe } from 'lucide-react';
+import { Minus, Plus, Sun, Moon, User, Globe, LayoutDashboard, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -7,6 +7,8 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { Link, useNavigate } from 'react-router-dom';
 
 const languages = [
   { code: 'en', name: 'English' },
@@ -18,6 +20,8 @@ const languages = [
 
 const TopRibbon = () => {
   const { isDarkMode, toggleDarkMode, fontSize, setFontSize, language, setLanguage } = useTheme();
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   const decreaseFontSize = () => {
     if (fontSize > 80) setFontSize(fontSize - 10);
@@ -30,6 +34,11 @@ const TopRibbon = () => {
   const resetFontSize = () => setFontSize(100);
 
   const currentLanguage = languages.find(l => l.code === language) || languages[0];
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
 
   return (
     <div className="bg-muted border-b border-border">
@@ -100,15 +109,34 @@ const TopRibbon = () => {
             {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
 
-          {/* Login/Signup */}
+          {/* Login/Signup/Dashboard */}
           <div className="flex items-center gap-1 ml-2">
-            <Button variant="ghost" size="sm" className="h-7 text-xs">
-              <User className="h-3 w-3 mr-1" />
-              Login
-            </Button>
-            <Button variant="default" size="sm" className="h-7 text-xs">
-              Sign Up
-            </Button>
+            {user ? (
+              <>
+                <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
+                  <Link to="/dashboard">
+                    <LayoutDashboard className="h-3 w-3 mr-1" />
+                    Dashboard
+                  </Link>
+                </Button>
+                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={handleLogout}>
+                  <LogOut className="h-3 w-3 mr-1" />
+                  Logout
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
+                  <Link to="/login">
+                    <User className="h-3 w-3 mr-1" />
+                    Login
+                  </Link>
+                </Button>
+                <Button variant="default" size="sm" className="h-7 text-xs">
+                  Sign Up
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>

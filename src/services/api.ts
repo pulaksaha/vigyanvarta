@@ -17,5 +17,21 @@ export const articleService = {
             throw new Error('Failed to fetch article');
         }
         return response.json();
+    },
+
+    async createArticle(article: Omit<Article, 'id' | 'publishedAt'>, token: string): Promise<Article> {
+        const response = await fetch(`${API_BASE_URL}/articles`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(article)
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to create article');
+        }
+        return response.json();
     }
 };
