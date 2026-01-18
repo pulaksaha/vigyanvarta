@@ -138,6 +138,19 @@ app.delete('/api/articles/:id', authenticate, async (req, res) => {
 
 // Serve static files from the React app
 const distPath = path.join(process.cwd(), 'dist');
+import fs from 'fs';
+try {
+    console.log(`[Startup] Current working directory: ${process.cwd()}`);
+    console.log(`[Startup] Directory contents:`, fs.readdirSync(process.cwd()));
+    if (fs.existsSync(distPath)) {
+        console.log(`[Startup] 'dist' folder found. Contents:`, fs.readdirSync(distPath));
+    } else {
+        console.error(`[Startup] 'dist' folder NOT found in ${process.cwd()}`);
+    }
+} catch (err) {
+    console.error(`[Startup] Failed to read directory contents:`, err);
+}
+
 console.log(`[Production] Serving static files from: ${distPath}`);
 
 app.use(express.static(distPath));
