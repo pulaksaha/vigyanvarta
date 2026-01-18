@@ -103,6 +103,39 @@ app.post('/api/articles', authenticate, async (req, res) => {
     }
 });
 
+app.put('/api/articles/:id', authenticate, async (req, res) => {
+    try {
+        if (!db) throw new Error('Database not initialized');
+        const { id } = req.params;
+        const articleData = req.body;
+
+        // Remove id and publishedAt from body if present to avoid overwriting metadata
+        delete articleData.id;
+        delete articleData.publishedAt;
+        delete articleData.authorId;
+
+        await db.collection('articles').doc(id).update(articleData);
+
+        const updatedDoc = await db.collection('articles').doc(id).get();
+        res.json({ id, ...updatedDoc.data() });
+    } catch (error) {
+        console.error('Error updating article:', error);
+        res.status(500).json({ error: 'Failed to update article' });
+    }
+});
+
+app.delete('/api/articles/:id', authenticate, async (req, res) => {
+    try {
+        if (!db) throw new Error('Database not initialized');
+        const { id } = req.params;
+        await db.collection('articles').doc(id).delete();
+        res.json({ message: 'Article deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting article:', error);
+        res.status(500).json({ error: 'Failed to delete article' });
+    }
+});
+
 // Serve static files from the React app
 const distPath = path.join(process.cwd(), 'dist');
 console.log(`[Production] Serving static files from: ${distPath}`);

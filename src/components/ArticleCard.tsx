@@ -1,5 +1,6 @@
 import { Article } from '@/data/mockArticles';
 import CategoryBadge from './CategoryBadge';
+import { Link } from 'react-router-dom';
 
 interface ArticleCardProps {
   article: Article;
@@ -9,7 +10,7 @@ interface ArticleCardProps {
 const ArticleCard = ({ article, variant = 'default' }: ArticleCardProps) => {
   if (variant === 'horizontal') {
     return (
-      <article className="group flex gap-4 py-4 border-b border-border last:border-b-0 cursor-pointer">
+      <Link to={`/article/${article.id}`} className="group flex gap-4 py-4 border-b border-border last:border-b-0 cursor-pointer">
         <div className="w-24 h-24 flex-shrink-0 overflow-hidden">
           <img
             src={article.imageUrl}
@@ -26,13 +27,13 @@ const ArticleCard = ({ article, variant = 'default' }: ArticleCardProps) => {
             {article.readTime} min read
           </p>
         </div>
-      </article>
+      </Link>
     );
   }
 
   if (variant === 'compact') {
     return (
-      <article className="group cursor-pointer">
+      <Link to={`/article/${article.id}`} className="group cursor-pointer block">
         <div className="aspect-[4/3] overflow-hidden mb-3">
           <img
             src={article.imageUrl}
@@ -47,12 +48,12 @@ const ArticleCard = ({ article, variant = 'default' }: ArticleCardProps) => {
         <p className="text-sm text-muted-foreground mt-1">
           {article.author} • {article.readTime} min
         </p>
-      </article>
+      </Link>
     );
   }
 
   return (
-    <article className="group cursor-pointer">
+    <Link to={`/article/${article.id}`} className="group cursor-pointer block">
       <div className="aspect-[16/10] overflow-hidden mb-4">
         <img
           src={article.imageUrl}
@@ -72,7 +73,7 @@ const ArticleCard = ({ article, variant = 'default' }: ArticleCardProps) => {
         <span>•</span>
         <span>{article.readTime} min read</span>
       </div>
-    </article>
+    </Link>
   );
 };
 

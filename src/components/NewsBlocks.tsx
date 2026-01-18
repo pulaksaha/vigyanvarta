@@ -1,4 +1,5 @@
 import { Article } from '@/data/mockArticles';
+import { Link } from 'react-router-dom';
 
 interface NewsBlocksProps {
   articles: Article[];
@@ -16,7 +17,7 @@ const categoryColors: Record<string, { bg: string; border: string; text: string 
 const NewsBlocks = ({ articles }: NewsBlocksProps) => {
   // Group articles by category
   const categories = ['Science', 'Technology', 'Innovation', 'Research'];
-  
+
   const groupedArticles = categories.reduce((acc, category) => {
     acc[category] = articles.filter(a => a.category === category).slice(0, 4);
     return acc;
@@ -54,15 +55,15 @@ const NewsBlocks = ({ articles }: NewsBlocksProps) => {
               <div className="space-y-2">
                 {categoryArticles.length > 0 ? (
                   categoryArticles.map((article) => (
-                    <a
+                    <Link
                       key={article.id}
-                      href="#"
+                      to={`/article/${article.id}`}
                       className={`block p-2.5 rounded ${colors.bg} border-l-4 ${colors.border} hover:translate-x-1 transition-transform`}
                     >
                       <p className="text-sm font-medium text-foreground line-clamp-2 leading-snug">
                         {article.title}
                       </p>
-                    </a>
+                    </Link>
                   ))
                 ) : (
                   <p className="text-sm text-muted-foreground text-center py-4">
