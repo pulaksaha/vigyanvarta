@@ -149,7 +149,16 @@ app.get('*', (req, res) => {
     res.sendFile(indexPath, (err) => {
         if (err) {
             console.error(`Error sending index.html from ${indexPath}:`, err);
-            res.status(500).send('Error loading the application. Please check backend logs.');
+
+            // Helpful debugging for missing dist folder
+            if (err.code === 'ENOENT') {
+                console.error(`CRITICAL: 'dist/index.html' not found!`);
+                console.error(`Current working directory: ${process.cwd()}`);
+                console.error(`Looking for index.html at: ${indexPath}`);
+                console.error(`Please ensure that 'npm run build' was executed during the build step on Render/deployment.`);
+            }
+
+            res.status(500).send('Error loading the application. The frontend build (dist folder) might be missing. Please check backend logs.');
         }
     });
 });
