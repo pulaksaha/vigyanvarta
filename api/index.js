@@ -137,18 +137,22 @@ app.delete('/api/articles/:id', authenticate, async (req, res) => {
 });
 
 // Serve static files from the React app
-const distPath = path.join(process.cwd(), 'dist');
+const distPath = path.resolve(__dirname, '..', 'dist');
 import fs from 'fs';
+
 try {
-    console.log(`[Startup] Current working directory: ${process.cwd()}`);
-    console.log(`[Startup] Directory contents:`, fs.readdirSync(process.cwd()));
+    console.log(`[Startup] __dirname: ${__dirname}`);
+    console.log(`[Startup] distPath: ${distPath}`);
     if (fs.existsSync(distPath)) {
-        console.log(`[Startup] 'dist' folder found. Contents:`, fs.readdirSync(distPath));
+        console.log(`[Startup] 'dist' folder found. Contents:`, fs.readdirSync(distPath).slice(0, 5));
     } else {
-        console.error(`[Startup] 'dist' folder NOT found in ${process.cwd()}`);
+        console.error(`[Startup] 'dist' folder NOT found at ${distPath}`);
+        // Log parent directory to help debug
+        const parentDir = path.resolve(distPath, '..');
+        console.log(`[Startup] Parent directory contents:`, fs.readdirSync(parentDir));
     }
 } catch (err) {
-    console.error(`[Startup] Failed to read directory contents:`, err);
+    console.error(`[Startup] Failed to check directory contents:`, err);
 }
 
 console.log(`[Production] Serving static files from: ${distPath}`);
@@ -165,10 +169,8 @@ app.get('*', (req, res) => {
 
             // Helpful debugging for missing dist folder
             if (err.code === 'ENOENT') {
-                console.error(`CRITICAL: 'dist/index.html' not found!`);
-                console.error(`Current working directory: ${process.cwd()}`);
-                console.error(`Looking for index.html at: ${indexPath}`);
-                console.error(`Please ensure that 'npm run build' was executed during the build step on Render/deployment.`);
+                console.error(`CRITICAL: 'index.html' not found at ${indexPath}`);
+                console.error(`Please ensure that 'npm run build' was executed.`);
             }
 
             res.status(500).send('Error loading the application. The frontend build (dist folder) might be missing. Please check backend logs.');
