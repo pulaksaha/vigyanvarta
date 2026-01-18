@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { Category } from '@/data/mockArticles';
+import { Category, Article } from '@/data/mockArticles';
 
 const categories = [
     'technology', 'science', 'space', 'innovation', 'gadgets', 'research'
@@ -33,8 +33,11 @@ const Dashboard = () => {
     const { user, signOut } = useAuth();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
+    const [articles, setArticles] = useState<Article[]>([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editId, setEditId] = useState<string | null>(null);
 
-    const [formData, setFormData] = useState<ArticleFormData>({
+    const initialFormData: ArticleFormData = {
         title: '',
         excerpt: '',
         content: '',
@@ -43,7 +46,22 @@ const Dashboard = () => {
         imageUrl: '',
         isFeatured: false,
         readTime: 5
-    });
+    };
+
+    const [formData, setFormData] = useState<ArticleFormData>(initialFormData);
+
+    const fetchArticles = async () => {
+        try {
+            const data = await articleService.getArticles();
+            setArticles(data);
+        } catch (error) {
+            console.error('Error fetching articles:', error);
+        }
+    };
+
+    React.useEffect(() => {
+        fetchArticles();
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -52,14 +70,52 @@ const Dashboard = () => {
         setLoading(true);
         try {
             const token = await user.getIdToken();
-            await articleService.createArticle(formData, token);
-            toast.success('Article published successfully!');
-            navigate('/');
+            if (isEditing && editId) {
+                await articleService.updateArticle(editId, formData, token);
+                toast.success('Article updated successfully!');
+            } else {
+                await articleService.createArticle(formData, token);
+                toast.success('Article published successfully!');
+            }
+            setFormData(initialFormData);
+            setIsEditing(false);
+            setEditId(null);
+            fetchArticles();
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message || 'Failed to publish article');
+            toast.error(error.message || 'Failed to save article');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleEdit = (article: Article) => {
+        setFormData({
+            title: article.title,
+            excerpt: article.excerpt,
+            content: article.content,
+            category: article.category,
+            author: article.author,
+            imageUrl: article.imageUrl,
+            isFeatured: article.isFeatured,
+            readTime: article.readTime
+        });
+        setIsEditing(true);
+        setEditId(article.id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!user || !window.confirm('Are you sure you want to delete this article?')) return;
+
+        try {
+            const token = await user.getIdToken();
+            await articleService.deleteArticle(id, token);
+            toast.success('Article deleted');
+            fetchArticles();
+        } catch (error: any) {
+            console.error(error);
+            toast.error('Failed to delete article');
         }
     };
 
@@ -81,107 +137,146 @@ const Dashboard = () => {
                     <Button variant="outline" onClick={handleSignOut}>Sign Out</Button>
                 </div>
 
-                <Card className="max-w-4xl mx-auto">
-                    <CardHeader>
-                        <CardTitle>Create New Article</CardTitle>
-                        <CardDescription>Fill in the details below to publish a new sci-tech news article.</CardDescription>
-                    </CardHeader>
-                    <form onSubmit={handleSubmit}>
-                        <CardContent className="space-y-6">
-                            <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid lg:grid-cols-2 gap-8">
+                    {/* Form Section */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>{isEditing ? 'Edit Article' : 'Create New Article'}</CardTitle>
+                            <CardDescription>
+                                {isEditing ? 'Update the details of your article.' : 'Fill in the details below to publish a new sci-tech news article.'}
+                            </CardDescription>
+                        </CardHeader>
+                        <form onSubmit={handleSubmit}>
+                            <CardContent className="space-y-6">
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="title">Article Title</Label>
+                                        <Input
+                                            id="title"
+                                            placeholder="Enter a catchy title"
+                                            required
+                                            value={formData.title}
+                                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="category">Category</Label>
+                                        <Select
+                                            value={formData.category}
+                                            onValueChange={(value: Category) => setFormData({ ...formData, category: value })}
+                                        >
+                                            <SelectTrigger id="category">
+                                                <SelectValue placeholder="Select category" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {categories.map(cat => (
+                                                    <SelectItem key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+
                                 <div className="space-y-2">
-                                    <Label htmlFor="title">Article Title</Label>
-                                    <Input
-                                        id="title"
-                                        placeholder="Enter a catchy title"
+                                    <Label htmlFor="excerpt">Excerpt / Summary</Label>
+                                    <Textarea
+                                        id="excerpt"
+                                        placeholder="Short summary for the article preview"
                                         required
-                                        value={formData.title}
-                                        onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                        value={formData.excerpt}
+                                        onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
                                     />
                                 </div>
+
                                 <div className="space-y-2">
-                                    <Label htmlFor="category">Category</Label>
-                                    <Select
-                                        value={formData.category}
-                                        onValueChange={(value: Category) => setFormData({ ...formData, category: value })}
-                                    >
-                                        <SelectTrigger id="category">
-                                            <SelectValue placeholder="Select category" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {categories.map(cat => (
-                                                <SelectItem key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="excerpt">Excerpt / Summary</Label>
-                                <Textarea
-                                    id="excerpt"
-                                    placeholder="Short summary for the article preview"
-                                    required
-                                    value={formData.excerpt}
-                                    onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })}
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="content">Full Content</Label>
-                                <Textarea
-                                    id="content"
-                                    placeholder="Write your article content here..."
-                                    className="min-h-[200px]"
-                                    required
-                                    value={formData.content}
-                                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                                />
-                            </div>
-
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <div className="space-y-2">
-                                    <Label htmlFor="imageUrl">Image URL</Label>
-                                    <Input
-                                        id="imageUrl"
-                                        placeholder="https://images.unsplash.com/..."
-                                        type="url"
+                                    <Label htmlFor="content">Full Content</Label>
+                                    <Textarea
+                                        id="content"
+                                        placeholder="Write your article content here..."
+                                        className="min-h-[200px]"
                                         required
-                                        value={formData.imageUrl}
-                                        onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                                        value={formData.content}
+                                        onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                                     />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="readTime">Read Time (minutes)</Label>
-                                    <Input
-                                        id="readTime"
-                                        type="number"
-                                        min="1"
-                                        required
-                                        value={formData.readTime}
-                                        onChange={(e) => setFormData({ ...formData, readTime: parseInt(e.target.value) || 1 })}
-                                    />
-                                </div>
-                            </div>
 
-                            <div className="flex items-center space-x-2">
-                                <Switch
-                                    id="featured"
-                                    checked={formData.isFeatured}
-                                    onCheckedChange={(checked) => setFormData({ ...formData, isFeatured: checked })}
-                                />
-                                <Label htmlFor="featured">Feature this article on the homepage</Label>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="imageUrl">Image URL</Label>
+                                        <Input
+                                            id="imageUrl"
+                                            placeholder="https://images.unsplash.com/..."
+                                            type="url"
+                                            required
+                                            value={formData.imageUrl}
+                                            onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="readTime">Read Time (minutes)</Label>
+                                        <Input
+                                            id="readTime"
+                                            type="number"
+                                            min="1"
+                                            required
+                                            value={formData.readTime}
+                                            onChange={(e) => setFormData({ ...formData, readTime: parseInt(e.target.value) || 1 })}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center space-x-2">
+                                    <Switch
+                                        id="featured"
+                                        checked={formData.isFeatured}
+                                        onCheckedChange={(checked) => setFormData({ ...formData, isFeatured: checked })}
+                                    />
+                                    <Label htmlFor="featured">Feature this article on the homepage</Label>
+                                </div>
+                            </CardContent>
+                            <CardFooter className="flex justify-end gap-4 border-t pt-6">
+                                {isEditing && (
+                                    <Button type="button" variant="ghost" onClick={() => {
+                                        setIsEditing(false);
+                                        setEditId(null);
+                                        setFormData(initialFormData);
+                                    }}>Cancel Edit</Button>
+                                )}
+                                <Button type="submit" disabled={loading}>
+                                    {loading ? 'Processing...' : (isEditing ? 'Update Article' : 'Publish Article')}
+                                </Button>
+                            </CardFooter>
+                        </form>
+                    </Card>
+
+                    {/* List Section */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Manage Articles</CardTitle>
+                            <CardDescription>A list of all published articles. You can edit or delete them from here.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-4">
+                                {articles.length > 0 ? (
+                                    articles.map((article) => (
+                                        <div key={article.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                                            <div className="min-w-0 flex-1 mr-4">
+                                                <h4 className="font-semibold truncate">{article.title}</h4>
+                                                <p className="text-xs text-muted-foreground capitalize">{article.category} • {article.publishedAt}</p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Button size="sm" variant="outline" onClick={() => handleEdit(article)}>Edit</Button>
+                                                <Button size="sm" variant="destructive" onClick={() => handleDelete(article.id)}>Delete</Button>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-center text-muted-foreground py-8">No articles found.</p>
+                                )}
                             </div>
                         </CardContent>
-                        <CardFooter className="flex justify-end gap-4">
-                            <Button type="button" variant="ghost" onClick={() => navigate('/')}>Cancel</Button>
-                            <Button type="submit" disabled={loading}>
-                                {loading ? 'Publishing...' : 'Publish Article'}
-                            </Button>
-                        </CardFooter>
-                    </form>
-                </Card>
+                    </Card>
+                </div>
             </main>
             <Footer />
         </div>
