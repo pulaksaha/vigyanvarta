@@ -45,7 +45,7 @@ const Header = () => {
           {/* Logo */}
           <div className="flex-1 text-center lg:text-left">
             <h1 className="font-headline text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-              SciTech Tribune
+              Scientific Times
             </h1>
             <p className="text-xs md:text-sm text-muted-foreground mt-1">
               Science & Technology News Portal

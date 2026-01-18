@@ -23,7 +23,7 @@ const Footer = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <h3 className="font-headline text-2xl font-bold mb-4">SciTech Tribune</h3>
+            <h3 className="font-headline text-2xl font-bold mb-4">Scientific Times</h3>
             <p className="text-sm opacity-80 mb-4">
               Your trusted source for the latest in science and technology news.
             </p>
@@ -99,7 +99,7 @@ const Footer = () => {
         {/* Bottom bar */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm opacity-60">
-            © {new Date().getFullYear()} SciTech Tribune. All rights reserved.
+            © {new Date().getFullYear()} Scientific Times. All rights reserved.
           </p>
           <div className="flex gap-6">
             {footerLinks.legal.map((link) => (
