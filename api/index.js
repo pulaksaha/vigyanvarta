@@ -142,10 +142,10 @@ app.delete('/api/articles/:id', authenticate, async (req, res) => {
 app.get('/api/newspapers', async (req, res) => {
     try {
         if (!db) throw new Error('Database not initialized');
-        const snapshot = await db.collection('newspapers')
-            .orderBy('uploadedAt', 'desc')
-            .get();
-        const newspapers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const snapshot = await db.collection('newspapers').get();
+        const newspapers = snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt)); // Sort in JavaScript
         res.json(newspapers);
     } catch (error) {
         console.error('Error fetching newspapers:', error);
