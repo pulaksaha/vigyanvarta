@@ -15,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { Category, Article } from '@/data/mockArticles';
 
 const categories = [
-    'technology', 'science', 'space', 'innovation', 'gadgets', 'research'
+    'home', 'daily-news', 'article', 'weekly-newspaper', 'others'
 ];
 
 interface ArticleFormData {
@@ -41,7 +41,7 @@ const Dashboard = () => {
         title: '',
         excerpt: '',
         content: '',
-        category: 'technology',
+        category: 'article',
         author: user?.displayName || user?.email?.split('@')[0] || 'Anonymous',
         imageUrl: '',
         isFeatured: false,
@@ -49,6 +49,12 @@ const Dashboard = () => {
     };
 
     const [formData, setFormData] = useState<ArticleFormData>(initialFormData);
+
+    // PDF Upload states
+    const [selectedPdf, setSelectedPdf] = useState<File | null>(null);
+    const [pdfTitle, setPdfTitle] = useState('');
+    const [pdfUploading, setPdfUploading] = useState(false);
+    const [newspapers, setNewspapers] = useState<Newspaper[]>([]);
 
     const fetchArticles = async () => {
         try {
@@ -125,6 +131,48 @@ const Dashboard = () => {
         navigate('/');
     };
 
+    const handlePdfSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file && file.type === 'application/pdf') {
+            setSelectedPdf(file);
+        } else {
+            toast.error('Please select a valid PDF file');
+        }
+    };
+
+    const handlePdfUpload = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user || !selectedPdf || !pdfTitle) {
+            toast.error('Please provide a title and select a PDF file');
+            return;
+        }
+
+        setPdfUploading(true);
+        try {
+            const token = await user.getIdToken();
+
+            // For now, we'll use a placeholder URL - in production, this would upload to Firebase Storage
+            // or another cloud storage service and return the actual URL
+            const pdfUrl = URL.createObjectURL(selectedPdf);
+
+            toast.info('PDF upload feature requires backend configuration for file storage');
+            toast.info('Please configure Firebase Storage or alternative storage service');
+
+            // Placeholder for actual upload
+            // const pdfUrl = await uploadPdfToStorage(selectedPdf, token);
+            // await articleService.createNewspaper({ title: pdfTitle, pdfUrl, category: 'weekly-newspaper' }, token);
+
+            setPdfTitle('');
+            setSelectedPdf(null);
+            // fetchNewspapers();
+        } catch (error: any) {
+            console.error(error);
+            toast.error(error.message || 'Failed to upload PDF');
+        } finally {
+            setPdfUploading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen flex flex-col">
             <Header />
@@ -143,7 +191,7 @@ const Dashboard = () => {
                         <CardHeader>
                             <CardTitle>{isEditing ? 'Edit Article' : 'Create New Article'}</CardTitle>
                             <CardDescription>
-                                {isEditing ? 'Update the details of your article.' : 'Fill in the details below to publish a new sci-tech news article.'}
+                                {isEditing ? 'Update the details of your article.' : 'Fill in the details below to publish a new article.'}
                             </CardDescription>
                         </CardHeader>
                         <form onSubmit={handleSubmit}>
@@ -170,7 +218,7 @@ const Dashboard = () => {
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {categories.map(cat => (
-                                                    <SelectItem key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</SelectItem>
+                                                    <SelectItem key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>

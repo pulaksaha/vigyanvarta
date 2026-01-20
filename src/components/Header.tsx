@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Search, Menu, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Navigation from './Navigation';
@@ -44,12 +45,14 @@ const Header = () => {
 
           {/* Logo */}
           <div className="flex-1 text-center lg:text-left">
-            <h1 className="font-headline text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-              Scientific Times
-            </h1>
-            <p className="text-xs md:text-sm text-muted-foreground mt-1">
-              Science & Technology News Portal
-            </p>
+            <Link to="/" className="inline-block">
+              <h1 className="font-headline text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight hover:text-primary transition-colors cursor-pointer">
+                Scientific Times
+              </h1>
+              <p className="text-xs md:text-sm text-muted-foreground mt-1">
+                Science & Technology News Portal
+              </p>
+            </Link>
           </div>
 
           {/* Search */}

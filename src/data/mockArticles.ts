@@ -1,4 +1,4 @@
-export type Category = 'science' | 'technology' | 'innovation' | 'research' | 'gadgets' | 'space';
+export type Category = 'home' | 'daily-news' | 'article' | 'weekly-newspaper' | 'others';
 
 export interface Article {
   id: string;
@@ -13,13 +13,22 @@ export interface Article {
   readTime: number;
 }
 
+export interface Newspaper {
+  id: string;
+  title: string;
+  pdfUrl: string;
+  category: 'weekly-newspaper';
+  uploadedAt: string;
+  uploadedBy: string;
+}
+
 export const mockArticles: Article[] = [
   {
     id: '1',
     title: 'Breakthrough in Quantum Computing: Scientists Achieve 1000-Qubit Milestone',
     excerpt: 'Researchers have developed a revolutionary quantum processor that could transform cryptography, drug discovery, and artificial intelligence.',
     content: 'Full article content here...',
-    category: 'technology',
+    category: 'article',
     author: 'Dr. Sarah Chen',
     publishedAt: '2026-01-10',
     imageUrl: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&auto=format&fit=crop',
@@ -31,7 +40,7 @@ export const mockArticles: Article[] = [
     title: 'New Species of Deep-Sea Creatures Discovered in Mariana Trench',
     excerpt: 'Marine biologists have identified over 30 previously unknown species living in the deepest parts of the ocean.',
     content: 'Full article content here...',
-    category: 'science',
+    category: 'daily-news',
     author: 'James Morrison',
     publishedAt: '2026-01-09',
     imageUrl: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&auto=format&fit=crop',
@@ -42,7 +51,7 @@ export const mockArticles: Article[] = [
     title: 'SpaceX Announces Plans for First Civilian Mars Mission',
     excerpt: 'The ambitious project aims to send the first non-astronaut crew to Mars by 2030.',
     content: 'Full article content here...',
-    category: 'space',
+    category: 'daily-news',
     author: 'Emily Rodriguez',
     publishedAt: '2026-01-09',
     imageUrl: 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&auto=format&fit=crop',
@@ -53,7 +62,7 @@ export const mockArticles: Article[] = [
     title: 'Revolutionary AI Model Can Predict Earthquakes 48 Hours in Advance',
     excerpt: 'Machine learning breakthrough could save countless lives by providing early warning systems for seismic events.',
     content: 'Full article content here...',
-    category: 'innovation',
+    category: 'article',
     author: 'Dr. Michael Park',
     publishedAt: '2026-01-08',
     imageUrl: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&auto=format&fit=crop',
@@ -64,7 +73,7 @@ export const mockArticles: Article[] = [
     title: 'Apple Unveils Neural Interface Headset for Hands-Free Computing',
     excerpt: 'The next generation of wearable technology allows users to control devices using only their thoughts.',
     content: 'Full article content here...',
-    category: 'gadgets',
+    category: 'daily-news',
     author: 'Lisa Wang',
     publishedAt: '2026-01-08',
     imageUrl: 'https://images.unsplash.com/photo-1592478411213-6153e4ebc07d?w=800&auto=format&fit=crop',
@@ -75,7 +84,7 @@ export const mockArticles: Article[] = [
     title: 'CERN Scientists Discover New Subatomic Particle',
     excerpt: 'The finding could help explain dark matter and reshape our understanding of the universe.',
     content: 'Full article content here...',
-    category: 'research',
+    category: 'article',
     author: 'Dr. Hans Mueller',
     publishedAt: '2026-01-07',
     imageUrl: 'https://images.unsplash.com/photo-1507413245164-6160d8298b31?w=800&auto=format&fit=crop',
@@ -86,7 +95,7 @@ export const mockArticles: Article[] = [
     title: 'Gene Therapy Successfully Reverses Blindness in Clinical Trial',
     excerpt: 'Patients with inherited retinal diseases regained significant vision after groundbreaking treatment.',
     content: 'Full article content here...',
-    category: 'science',
+    category: 'daily-news',
     author: 'Dr. Amanda Foster',
     publishedAt: '2026-01-07',
     imageUrl: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=800&auto=format&fit=crop',
@@ -97,7 +106,7 @@ export const mockArticles: Article[] = [
     title: 'Tesla Reveals Solid-State Battery with 1000-Mile Range',
     excerpt: 'The revolutionary battery technology charges in under 10 minutes and could make EVs more practical than ever.',
     content: 'Full article content here...',
-    category: 'technology',
+    category: 'daily-news',
     author: 'Robert Kim',
     publishedAt: '2026-01-06',
     imageUrl: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=800&auto=format&fit=crop',
@@ -106,10 +115,9 @@ export const mockArticles: Article[] = [
 ];
 
 export const categories = [
-  { id: 'science', name: 'Science', color: 'category-science' },
-  { id: 'technology', name: 'Technology', color: 'category-technology' },
-  { id: 'innovation', name: 'Innovation', color: 'category-innovation' },
-  { id: 'research', name: 'Research', color: 'category-research' },
-  { id: 'gadgets', name: 'Gadgets', color: 'category-gadgets' },
-  { id: 'space', name: 'Space', color: 'category-space' },
+  { id: 'home', name: 'Home', color: 'category-home' },
+  { id: 'daily-news', name: 'Daily News', color: 'category-daily-news' },
+  { id: 'article', name: 'Article', color: 'category-article' },
+  { id: 'weekly-newspaper', name: 'Weekly Newspaper', color: 'category-newspaper' },
+  { id: 'others', name: 'Others', color: 'category-others' },
 ] as const;
