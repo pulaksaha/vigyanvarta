@@ -173,6 +173,28 @@ app.post('/api/newspapers', authenticate, async (req, res) => {
     }
 });
 
+// Update a newspaper
+app.put('/api/newspapers/:id', authenticate, async (req, res) => {
+    try {
+        if (!db) throw new Error('Database not initialized');
+        const { id } = req.params;
+        const newspaperData = req.body;
+
+        // Remove metadata fields from body if present
+        delete newspaperData.id;
+        delete newspaperData.uploadedAt;
+        delete newspaperData.uploadedBy;
+
+        await db.collection('newspapers').doc(id).update(newspaperData);
+
+        const updatedDoc = await db.collection('newspapers').doc(id).get();
+        res.json({ id, ...updatedDoc.data() });
+    } catch (error) {
+        console.error('Error updating newspaper:', error);
+        res.status(500).json({ error: 'Failed to update newspaper' });
+    }
+});
+
 // Delete a newspaper
 app.delete('/api/newspapers/:id', authenticate, async (req, res) => {
     try {

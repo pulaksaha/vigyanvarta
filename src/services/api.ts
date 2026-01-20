@@ -85,6 +85,19 @@ export const newspaperService = {
         return response.json();
     },
 
+    updateNewspaper: async (id: string, newspaperData: { title: string; pdfUrl: string }, token: string) => {
+        const response = await fetch(`${API_BASE_URL}/newspapers/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(newspaperData),
+        });
+        if (!response.ok) throw new Error('Failed to update newspaper');
+        return response.json();
+    },
+
     deleteNewspaper: async (id: string, token: string) => {
         const response = await fetch(`${API_BASE_URL}/newspapers/${id}`, {
             method: 'DELETE',

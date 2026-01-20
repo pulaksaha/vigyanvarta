@@ -57,8 +57,12 @@ const Dashboard = () => {
     const [newspaperPdfUrl, setNewspaperPdfUrl] = useState('');
     const [uploadingNewspaper, setUploadingNewspaper] = useState(false);
     const [newspapers, setNewspapers] = useState<Newspaper[]>([]);
+    const [isEditingNewspaper, setIsEditingNewspaper] = useState(false);
+    const [editNewspaperId, setEditNewspaperId] = useState<string | null>(null);
 
-
+    // Tab states
+    const [createTab, setCreateTab] = useState<'article' | 'newspaper'>('article');
+    const [manageTab, setManageTab] = useState<'articles' | 'newspapers'>('articles');
 
     const fetchArticles = async () => {
         try {
@@ -69,8 +73,18 @@ const Dashboard = () => {
         }
     };
 
+    const fetchNewspapers = async () => {
+        try {
+            const data = await newspaperService.getNewspapers();
+            setNewspapers(data);
+        } catch (error) {
+            console.error('Error fetching newspapers:', error);
+        }
+    };
+
     React.useEffect(() => {
         fetchArticles();
+        fetchNewspapers();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -112,6 +126,7 @@ const Dashboard = () => {
         });
         setIsEditing(true);
         setEditId(article.id);
+        setCreateTab('article');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
@@ -154,15 +169,47 @@ const Dashboard = () => {
         setUploadingNewspaper(true);
         try {
             const token = await user.getIdToken();
-            await newspaperService.createNewspaper({ title: newspaperTitle, pdfUrl }, token);
-            toast.success('Newspaper link saved successfully!');
+            if (isEditingNewspaper && editNewspaperId) {
+                await newspaperService.updateNewspaper(editNewspaperId, { title: newspaperTitle, pdfUrl }, token);
+                toast.success('Newspaper updated successfully!');
+            } else {
+                await newspaperService.createNewspaper({ title: newspaperTitle, pdfUrl }, token);
+                toast.success('Newspaper link saved successfully!');
+            }
             setNewspaperTitle('');
             setNewspaperPdfUrl('');
+            setIsEditingNewspaper(false);
+            setEditNewspaperId(null);
+            fetchNewspapers();
         } catch (error: any) {
             console.error(error);
-            toast.error(error.message || 'Failed to save newspaper');
+            toast.error(error.message || (isEditingNewspaper ? 'Failed to update newspaper' : 'Failed to save newspaper'));
         } finally {
             setUploadingNewspaper(false);
+        }
+    };
+
+    const handleEditNewspaper = (newspaper: Newspaper) => {
+        setNewspaperTitle(newspaper.title);
+        setNewspaperPdfUrl(newspaper.pdfUrl);
+        setIsEditingNewspaper(true);
+        setEditNewspaperId(newspaper.id);
+        setCreateTab('newspaper');
+        // Scroll to the form
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleDeleteNewspaper = async (id: string) => {
+        if (!user || !window.confirm('Are you sure you want to delete this newspaper?')) return;
+
+        try {
+            const token = await user.getIdToken();
+            await newspaperService.deleteNewspaper(id, token);
+            toast.success('Newspaper deleted');
+            fetchNewspapers();
+        } catch (error: any) {
+            console.error(error);
+            toast.error('Failed to delete newspaper');
         }
     };
 
@@ -190,7 +237,7 @@ const Dashboard = () => {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Tabs defaultValue="article" className="w-full">
+                            <Tabs value={createTab} onValueChange={(v) => setCreateTab(v as 'article' | 'newspaper')} className="w-full">
                                 <TabsList className="grid w-full grid-cols-2 mb-6">
                                     <TabsTrigger value="article" className="flex items-center gap-2">
                                         <FileText className="h-4 w-4" />
@@ -338,10 +385,18 @@ const Dashboard = () => {
                                                 </p>
                                             </div>
 
-                                            <div className="flex justify-end border-t pt-6">
+                                            <div className="flex justify-end gap-4 border-t pt-6">
+                                                {isEditingNewspaper && (
+                                                    <Button type="button" variant="ghost" onClick={() => {
+                                                        setIsEditingNewspaper(false);
+                                                        setEditNewspaperId(null);
+                                                        setNewspaperTitle('');
+                                                        setNewspaperPdfUrl('');
+                                                    }}>Cancel Edit</Button>
+                                                )}
                                                 <Button type="submit" disabled={uploadingNewspaper} className="flex items-center gap-2">
                                                     <NewspaperIcon className="h-4 w-4" />
-                                                    {uploadingNewspaper ? 'Saving...' : 'Add Newspaper'}
+                                                    {uploadingNewspaper ? 'Saving...' : (isEditingNewspaper ? 'Update Newspaper' : 'Add Newspaper')}
                                                 </Button>
                                             </div>
                                         </div>
@@ -354,28 +409,72 @@ const Dashboard = () => {
                     {/* List Section */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Manage Articles</CardTitle>
-                            <CardDescription>A list of all published articles. You can edit or delete them from here.</CardDescription>
+                            <CardTitle>Manage Content</CardTitle>
+                            <CardDescription>View and manage all published articles and newspapers.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <div className="space-y-4">
-                                {articles.length > 0 ? (
-                                    articles.map((article) => (
-                                        <div key={article.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                                            <div className="min-w-0 flex-1 mr-4">
-                                                <h4 className="font-semibold truncate">{article.title}</h4>
-                                                <p className="text-xs text-muted-foreground capitalize">{article.category} • {article.publishedAt}</p>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Button size="sm" variant="outline" onClick={() => handleEdit(article)}>Edit</Button>
-                                                <Button size="sm" variant="destructive" onClick={() => handleDelete(article.id)}>Delete</Button>
-                                            </div>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <p className="text-center text-muted-foreground py-8">No articles found.</p>
-                                )}
-                            </div>
+                            <Tabs value={manageTab} onValueChange={(v) => setManageTab(v as 'articles' | 'newspapers')} className="w-full">
+                                <TabsList className="grid w-full grid-cols-2 mb-4">
+                                    <TabsTrigger value="articles" className="flex items-center gap-2">
+                                        <FileText className="h-4 w-4" />
+                                        Articles
+                                    </TabsTrigger>
+                                    <TabsTrigger value="newspapers" className="flex items-center gap-2">
+                                        <NewspaperIcon className="h-4 w-4" />
+                                        Newspapers
+                                    </TabsTrigger>
+                                </TabsList>
+
+                                {/* Articles Tab */}
+                                <TabsContent value="articles">
+                                    <div className="space-y-4">
+                                        {articles.length > 0 ? (
+                                            articles.map((article) => (
+                                                <div key={article.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                                                    <div className="min-w-0 flex-1 mr-4">
+                                                        <h4 className="font-semibold truncate">{article.title}</h4>
+                                                        <p className="text-xs text-muted-foreground capitalize">{article.category} • {article.publishedAt}</p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Button size="sm" variant="outline" onClick={() => handleEdit(article)}>Edit</Button>
+                                                        <Button size="sm" variant="destructive" onClick={() => handleDelete(article.id)}>Delete</Button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-center text-muted-foreground py-8">No articles found.</p>
+                                        )}
+                                    </div>
+                                </TabsContent>
+
+                                {/* Newspapers Tab */}
+                                <TabsContent value="newspapers">
+                                    <div className="space-y-4">
+                                        {newspapers.length > 0 ? (
+                                            newspapers.map((newspaper) => (
+                                                <div key={newspaper.id} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
+                                                    <div className="min-w-0 flex-1 mr-4">
+                                                        <h4 className="font-semibold truncate">{newspaper.title}</h4>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            {new Date(newspaper.uploadedAt).toLocaleDateString('en-US', {
+                                                                year: 'numeric',
+                                                                month: 'long',
+                                                                day: 'numeric',
+                                                            })}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <Button size="sm" variant="outline" onClick={() => handleEditNewspaper(newspaper)}>Edit</Button>
+                                                        <Button size="sm" variant="destructive" onClick={() => handleDeleteNewspaper(newspaper.id)}>Delete</Button>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-center text-muted-foreground py-8">No newspapers found.</p>
+                                        )}
+                                    </div>
+                                </TabsContent>
+                            </Tabs>
                         </CardContent>
                     </Card>
                 </div>
