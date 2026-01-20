@@ -64,3 +64,36 @@ export const articleService = {
         }
     }
 };
+
+export const newspaperService = {
+    getNewspapers: async () => {
+        const response = await fetch(`${API_BASE_URL}/newspapers`);
+        if (!response.ok) throw new Error('Failed to fetch newspapers');
+        return response.json();
+    },
+
+    createNewspaper: async (newspaperData: { title: string; pdfUrl: string }, token: string) => {
+        const response = await fetch(`${API_BASE_URL}/newspapers`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(newspaperData),
+        });
+        if (!response.ok) throw new Error('Failed to create newspaper');
+        return response.json();
+    },
+
+    deleteNewspaper: async (id: string, token: string) => {
+        const response = await fetch(`${API_BASE_URL}/newspapers/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+        if (!response.ok) throw new Error('Failed to delete newspaper');
+        return response.json();
+    },
+};
+

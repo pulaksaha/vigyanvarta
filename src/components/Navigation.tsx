@@ -9,7 +9,7 @@ const navigationItems = [
   { label: 'Home', path: '/' },
   { label: 'Daily News', path: '/?category=daily-news' },
   { label: 'Article', path: '/?category=article' },
-  { label: 'Weekly Newspaper', path: '/?category=weekly-newspaper' },
+  { label: 'Weekly Newspaper', path: '/newspapers' },
   { label: 'Others', path: '/?category=others' },
 ];
 

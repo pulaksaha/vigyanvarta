@@ -136,6 +136,55 @@ app.delete('/api/articles/:id', authenticate, async (req, res) => {
     }
 });
 
+// ========== Newspaper Routes ==========
+
+// Get all newspapers
+app.get('/api/newspapers', async (req, res) => {
+    try {
+        if (!db) throw new Error('Database not initialized');
+        const snapshot = await db.collection('newspapers')
+            .orderBy('uploadedAt', 'desc')
+            .get();
+        const newspapers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        res.json(newspapers);
+    } catch (error) {
+        console.error('Error fetching newspapers:', error);
+        res.status(500).json({ error: 'Failed to fetch newspapers' });
+    }
+});
+
+// Create a new newspaper
+app.post('/api/newspapers', authenticate, async (req, res) => {
+    try {
+        if (!db) throw new Error('Database not initialized');
+        const newspaperData = {
+            ...req.body,
+            uploadedAt: new Date().toISOString(),
+            uploadedBy: req.user.uid,
+        };
+
+        const docRef = await db.collection('newspapers').add(newspaperData);
+        await docRef.update({ id: docRef.id });
+
+        res.status(201).json({ id: docRef.id, ...newspaperData });
+    } catch (error) {
+        console.error('Error creating newspaper:', error);
+        res.status(500).json({ error: 'Failed to create newspaper' });
+    }
+});
+
+// Delete a newspaper
+app.delete('/api/newspapers/:id', authenticate, async (req, res) => {
+    try {
+        if (!db) throw new Error('Database not initialized');
+        await db.collection('newspapers').doc(req.params.id).delete();
+        res.json({ message: 'Newspaper deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting newspaper:', error);
+        res.status(500).json({ error: 'Failed to delete newspaper' });
+    }
+});
+
 // Serve static files from the React app
 const distPath = path.resolve(__dirname, '..', 'dist');
 import fs from 'fs';
